@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<title>Quiz Results</title>
+	<style>
+		body, html {
+			margin: 0;
+			padding: 20px;
+			font-family: 'Segoe UI', Arial, sans-serif;
+			background-color: #f4f4f4;
+			color: #333;
+		}
+
+		h2 {
+			color: #004d99;
+			border-bottom: 2px solid #004d99;
+			padding-bottom: 10px;
+			margin-bottom: 20px;
+		}
+
+		.question-block {
+			background-color: #ffffff;
+			padding: 15px;
+			margin-bottom: 20px;
+			border-left: 5px solid #004d99;
+			box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+		}
+
+		.question-block p {
+			margin: 5px 0;
+		}
+
+		.question-block p span {
+			font-weight: bold;
+		}
+
+		a {
+			display: inline-block;
+			background-color: #004d99;
+			color: #ffffff;
+			padding: 10px 20px;
+			text-decoration: none;
+			border-radius: 5px;
+			transition: background-color 0.3s ease;
+		}
+
+		a:hover {
+			background-color: #003366;
+		}
+	</style>
+</head>
+<body>
+<h2>Your Score: <span th:text="${score}"></span> / <span th:text="${totalQuestions}"></span></h2>
+
+<div th:each="entry : ${submittedAnswers.entrySet()}">
+	<div class="question-block">
+		<p>Question ID: <span th:text="${entry.key}"></span></p>
+		<p>Your Answer: <span th:text="${entry.value}"></span></p>
+		<p>Correct Answer: <span th:text="${correctAnswers[entry.key]}"></span></p>
+	</div>
+</div>
+
+<a href="/user/home">Take another quiz</a>
+</body>
+</html>

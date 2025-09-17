@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Take Quiz</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        .container {
+            display: flex;
+        }
+
+        .sidebar {
+            background-color: #004d99;
+            color: #fff;
+            padding: 20px;
+            width: 200px;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .sidebar a {
+            color: #ffffff;
+            text-decoration: none;
+            display: block;
+            padding: 10px 0;
+        }
+
+        .sidebar a:hover {
+            background-color: #003366;
+        }
+
+        .content {
+            flex-grow: 1;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #004d99;
+            margin-bottom: 20px;
+        }
+
+        form {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .question {
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #e9e9e9;
+            border-radius: 5px;
+        }
+
+        .question p {
+            margin: 0 0 10px 0;
+            font-weight: bold;
+        }
+
+        .question div {
+            margin: 5px 0;
+        }
+
+        input[type="radio"] {
+            margin-right: 5px;
+        }
+
+        button {
+            background-color: #004d99;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            display: inline-block;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #003366;
+        }
+
+        #countdown {
+            font-weight: bold;
+            color: #d9534f;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+            }
+
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="sidebar">
+        <a href="/user/home">Back</a>
+        <a href="/logout">Logout</a>
+    </div>
+    <div class="content">
+        <h1 th:text="${quiz.title}">Quiz Title</h1>
+        <form th:action="@{/quizzes/{quizId}/submit(quizId=${quiz.id})}" th:object="${quizSubmission}" method="post" id="quizForm">
+            <div th:each="question : ${questions}" class="question">
+                <p th:text="${question.text}">Question Text</p>
+                <div>
+                    <input type="radio" th:field="*{answers[__${question.id}__]}" th:value="'A'" />
+                    <label th:text="${question.optionA}">Option A</label>
+                </div>
+                <div>
+                    <input type="radio" th:field="*{answers[__${question.id}__]}" th:value="'B'" />
+                    <label th:text="${question.optionB}">Option B</label>
+                </div>
+                <div>
+                    <input type="radio" th:field="*{answers[__${question.id}__]}" th:value="'C'" />
+                    <label th:text="${question.optionC}">Option C</label>
+                </div>
+            </div>
+            <button type="submit">Submit</button>
+        </form>
+        <div id="countdown">Loading timer...</div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const durationInput = document.getElementById('quizDuration');
+        if (!durationInput) {
+            console.error("Quiz duration input not found");
+            return;
+        }
+
+        const duration = parseInt(durationInput.value, 10);
+        console.log("Quiz duration in minutes:", duration);
+
+        if (isNaN(duration)) {
+            console.error("Invalid quiz duration value");
+            return;
+        }
+
+        const endTime = new Date(new Date().getTime() + duration * 60000);
+        console.log("Quiz end time:", endTime);
+
+        const interval = setInterval(() => {
+            const now = new Date();
+            const distance = endTime - now;
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById("countdown").innerHTML = `${minutes}m ${seconds}s`;
+
+            if (distance < 0) {
+                clearInterval(interval);
+                document.getElementById("countdown").innerHTML = "TIME UP";
+                document.getElementById("quizForm").submit();
+            }
+        }, 1000);
+    });
+</script>
+
+<input type="hidden" id="quizDuration" th:value="${duration}" />
+</body>
+</html>
